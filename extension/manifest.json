@@ -1,0 +1,9 @@
+{
+  "name": "Web Hook Notifications",
+  "version": "1.0",
+  "description": "Allows notifications to be triggered by web hooks.",
+  "background_page": "background.html",
+  "permissions": [
+    "notifications"
+  ]
+}

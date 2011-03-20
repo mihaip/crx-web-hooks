@@ -1,0 +1,12 @@
+<script>
+function showNotification() {
+  var notification = webkitNotifications.createNotification(
+      '',
+      'Title',
+      'Body');
+  notification.show();
+}
+
+setInterval(showNotification, 60000);
+showNotification();
+</script>
