@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Untitled</title>
+</head>
+<body>
+  <script type="text/javascript" src="/_ah/channel/jsapi"></script>
+  <script>
+    var channel = new goog.appengine.Channel('{{ channel_token }}');
+    var socket = channel.open({
+      onopen: function() {
+        console.log('channel opened');
+      },
+      onmessage: function(message) {
+        console.log('channel message');
+        console.dir(message);
+      },
+      onerror: function(error) {
+        console.log('channel error');
+        console.dir(error);
+      },
+      onclose: function() {
+        console.log('channel closed');
+      }      
+    });
+  </script>
+
+</body>
+</html>
