@@ -5,6 +5,8 @@ from google.appengine.api import channel
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
 
+import data
+
 CHANNEL_NAME = 'the_channel'
 
 class BaseHandler(webapp.RequestHandler):
@@ -58,7 +60,7 @@ class HookHandler(BaseHandler):
             cookies[header_name] = header_value
         
         request_as_json = {
-          'remote_addr': request.remote_addr,
+          'remoteAddress': request.remote_addr,
           'arguments': arguments,
           'cookies': cookies,
           'headers': headers,
@@ -68,6 +70,62 @@ class HookHandler(BaseHandler):
         
         # Echo what was sent to the channel for debugging
         self._write_json(request_as_json)
+
+class ClientCreateHandler(BaseHandler):
+    def post(self):
+        client = data.Client.create()
+        client.put()
+        
+        self._write_json(client.as_json())
+
+class ClientChannelCreateHandler(BaseHandler):
+    def post(self, client_id):
+        client = data.Client.get_by_id(client_id)
+        
+        if not client:
+            self._write_not_found()
+            return
+        
+        client.channels.add_channel()
+        client.put()
+        
+        self._write_json(client.as_json())
+        
+class ClientHandler(BaseHandler):
+    def get(self, client_id):
+        client = data.Client.get_by_id(client_id)
+        
+        if not client:
+            self._write_not_found()
+            return
+        
+        self._write_json(client.as_json())        
+        
+class ClientChannelPingHandler(BaseHandler):
+    def post(self, client_id, channel_id):
+        client = data.Client.get_by_id(client_id)
+        
+        if not client or not client.channels.contains_channel(channel_id):
+            self._write_not_found()
+            return
+        
+        client.channels.ping_channel(channel_id)
+        client.put()
+        
+        self._write_json(client.as_json())   
+
+class ClientChannelLeaveHandler(BaseHandler):
+    def post(self, client_id, channel_id):
+        client = data.Client.get_by_id(client_id)
+        
+        if not client or not client.channels.contains_channel(channel_id):
+            self._write_not_found()
+            return
+        
+        client.channels.remove_channel(channel_id)
+        client.put()
+        
+        self._write_json(client.as_json())
 
 class ChannelHandler(BaseHandler):
     def get(self):
