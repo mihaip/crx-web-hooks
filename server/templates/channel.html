@@ -6,22 +6,22 @@
 <body>
   <script type="text/javascript" src="/_ah/channel/jsapi"></script>
   <script>
+    function relayChannelMessage(messageType, opt_messageData) {
+      var messageString = JSON.stringify({
+        type: messageType,
+        data: opt_messageData || ''
+      });
+      
+      // TODO(mihaip): use a specific target origin if possible
+      window.top.postMessage(messageString, '*');
+    }
+    
     var channel = new goog.appengine.Channel('{{ channel_token }}');
     var socket = channel.open({
-      onopen: function() {
-        console.log('channel opened');
-      },
-      onmessage: function(message) {
-        console.log('channel message');
-        console.dir(message);
-      },
-      onerror: function(error) {
-        console.log('channel error');
-        console.dir(error);
-      },
-      onclose: function() {
-        console.log('channel closed');
-      }      
+      onopen: function() { relayChannelMessage('open'); },
+      onmessage: function(message) { relayChannelMessage('message', message); },
+      onerror: function(error) { relayChannelMessage('error', error); },
+      onclose: function() { relayChannelMessage('close'); }
     });
   </script>
 

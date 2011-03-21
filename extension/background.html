@@ -1,12 +1,16 @@
 <script>
-function showNotification() {
+window.addEventListener('message', handleChannelMessage, false);
+
+function handleChannelMessage(event) {
+  // TODO(mihaip): validate event origin and source
+  var message = JSON.parse(event.data);
   var notification = webkitNotifications.createNotification(
       '',
-      'Title',
-      'Body');
+      message.type,
+      message.data ? JSON.stringify(message.data) : '<no data>');
   notification.show();
 }
-
-setInterval(showNotification, 60000);
-showNotification();
 </script>
+
+<!-- TODO(mihaip): make server path configurable -->
+<iframe src="http://localhost:8082/channel"></iframe>
