@@ -54,7 +54,7 @@ class ClientChannelList(object):
         return id in self.channel_ping_time_by_id
         
     def add_channel(self):
-        id  = _generate_channel_id()
+        id  = _generate_id('a')
         self.channel_ping_time_by_id[id] = time.time()
         return id
     
@@ -63,6 +63,11 @@ class ClientChannelList(object):
     
     def remove_channel(self, id):
         del self.channel_ping_time_by_id[id]
+        
+    def get_active_channel_ids(self):
+        threshold_ping_time = time.time() - 10 * 60
+        c = self.channel_ping_time_by_id
+        return [k for k in c.keys() if c[k] > threshold_ping_time]
         
     def as_json(self):
         return {
@@ -88,19 +93,37 @@ class Client(db.Model):
         
     @staticmethod
     def create():
-        id = _generate_client_id()
+        id = _generate_id('c')
         client = Client(
             key_name=id,
             id=id,
             channels=ClientChannelList()
         )
         return client
-        
-def _generate_client_id():
-    return _generate_id('client-')
 
-def _generate_channel_id():
-    return _generate_id('channel-')
+class Hook(db.Model):
+    id = db.StringProperty()
+    owner_client_id = db.StringProperty()
+    
+    def as_json(self):
+        return {
+            'id': self.id,
+            'ownerClientId': self.owner_client_id,
+        }
+        
+    @staticmethod
+    def get_by_id(id):
+        return Hook.get_by_key_name(id)
+    
+    @staticmethod
+    def create(owner_client_id):
+        id = _generate_id('h')
+        hook = Hook(
+            key_name=id,
+            id=id,
+            owner_client_id=owner_client_id,
+        )
+        return hook    
 
 def _generate_id(prefix):
     return prefix + base64.urlsafe_b64encode(uuid.uuid4().bytes).replace('=', '')

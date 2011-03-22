@@ -1,13 +1,11 @@
 import os
 
 from django.utils import simplejson
-from google.appengine.api import channel
+from google.appengine.api import channel as appengine_channel
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
 
 import data
-
-CHANNEL_NAME = 'the_channel'
 
 class BaseHandler(webapp.RequestHandler):
     def _render_template(self, template_file_name, template_values={}):
@@ -40,14 +38,31 @@ class BaseHandler(webapp.RequestHandler):
         
     def _write_json(self, obj):
         self.response.headers['Content-Type'] = 'application/json'
-        self.response.out.write(simplejson.dumps(obj))
+        self.response.out.write(simplejson.dumps(obj, indent=4) + '\n')
 
 class MainHandler(webapp.RequestHandler):
     def get(self):
         self.response.out.write('Hello world!')
         
-class HookHandler(BaseHandler):
+class HookCreateHandler(BaseHandler):
     def post(self):
+        client_id = self.request.get('client_id')
+        if not client_id:
+            self._write_input_error()
+            return            
+        
+        client = data.Client.get_by_id(client_id)
+        if not client:
+            self._write_input_error()
+            return
+    
+        hook = data.Hook.create(client_id)
+        hook.put()
+        
+        self._write_json(hook.as_json())
+        
+class HookHandler(BaseHandler):
+    def post(self, hook_id):
         request = self.request
         arguments = {}
         for arg_name in request.arguments():
@@ -66,7 +81,20 @@ class HookHandler(BaseHandler):
           'headers': headers,
         }
         
-        channel.send_message(CHANNEL_NAME, simplejson.dumps(request_as_json))
+        hook = data.Hook.get_by_id(hook_id)
+        if not hook:  
+            self._write_not_found()
+            return
+
+        client = data.Client.get_by_id(hook.owner_client_id)
+        if not client:
+            self._write_input_error()
+            return
+        
+        channel_ids = client.channels.get_active_channel_ids()
+        for channel_id in channel_ids:
+            appengine_channel.send_message(
+                channel_id, simplejson.dumps(request_as_json))
         
         # Echo what was sent to the channel for debugging
         self._write_json(request_as_json)
@@ -127,11 +155,21 @@ class ClientChannelLeaveHandler(BaseHandler):
         
         self._write_json(client.as_json())
 
-class ChannelHandler(BaseHandler):
-    def get(self):
-        channel_token = channel.create_channel(CHANNEL_NAME)
+class ClientChannelHandler(BaseHandler):
+    def get(self, client_id):
+        client = data.Client.get_by_id(client_id)
+        
+        if not client:
+            self._write_not_found()
+            return
+            
+        channel_id = client.channels.add_channel()
+        client.put()
+            
+        channel_token = appengine_channel.create_channel(channel_id)
         
         self._write_template(
             'templates/channel.html', {
-                'channel_token': channel_token,
+                'channel_id': channel_id,
+                'channel_token': channel_token
             })

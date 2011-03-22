@@ -8,15 +8,16 @@ import handlers
 def main():
     application = webapp.WSGIApplication([
             ('/', handlers.MainHandler),
-            ('/hook/.*', handlers.HookHandler),
+
+            ('/hook/create', handlers.HookCreateHandler),
+            ('/hook/(.+)', handlers.HookHandler),
 
             ('/client/create', handlers.ClientCreateHandler),
             ('/client/(.+)/channel/create', handlers.ClientChannelCreateHandler),
             ('/client/(.+)/channel/(.+)/ping', handlers.ClientChannelPingHandler),
             ('/client/(.+)/channel/(.+)/leave', handlers.ClientChannelLeaveHandler),
+            ('/client/(.+)/channel', handlers.ClientChannelHandler),
             ('/client/(.+)', handlers.ClientHandler),
-
-            ('/channel', handlers.ChannelHandler),
         ],
         debug=True)
     util.run_wsgi_app(application)
