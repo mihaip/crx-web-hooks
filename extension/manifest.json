@@ -3,7 +3,10 @@
   "version": "1.0",
   "description": "Allows notifications to be triggered by web hooks.",
   "background_page": "background.html",
+  "options_page": "options.html",
   "permissions": [
-    "notifications"
+    "notifications",
+    "http://crx-web-hooks.appspot.com/*",
+    "http://localhost/*"
   ]
 }

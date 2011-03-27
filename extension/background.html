@@ -1,16 +1,28 @@
-<script>
-window.addEventListener('message', handleChannelMessage, false);
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Untitled</title>
+</head>
+<body>
+  <script src="data.js"></script>
+  <script>
+  window.addEventListener('message', handleChannelMessage, false);
 
-function handleChannelMessage(event) {
-  // TODO(mihaip): validate event origin and source
-  var message = JSON.parse(event.data);
-  var notification = webkitNotifications.createNotification(
-      '',
-      message.type,
-      message.data ? JSON.stringify(message.data) : '<no data>');
-  notification.show();
-}
-</script>
+  function handleChannelMessage(event) {
+    // TODO(mihaip): validate event origin and source
+    var message = JSON.parse(event.data);
+    var notification = webkitNotifications.createNotification(
+        '',
+        message.type,
+        message.data ? JSON.stringify(message.data) : '<no data>');
+    notification.show();
+  }
 
-<!-- TODO(mihaip): make server path configurable -->
-<iframe src="http://localhost:8082/client/cK9uXpyfGTd2chu5dTIwmGw/channel"></iframe>
+  prefs.getClientId(function(clientId) {
+    var channelFrame = document.createElement('iframe');
+    channelFrame.src = 'http://' + prefs.getAppHostname() + '/client/' + clientId + '/channel';
+    document.body.appendChild(channelFrame);
+  });
+  </script>
+</body>
+</html>

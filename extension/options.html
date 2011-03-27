@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Web Hook Notifications Options</title>
+	<script src="data.js"></script>
+	<style>
+	  body {
+	    font-family: Helvetica, sans-serif;
+	    font-size: 13px;
+	    margin: 0;
+	  }
+
+	  h1 {
+	    margin-top: 0;
+	    background: #eee;
+	    padding: .5em;
+	  }
+
+    h2 {
+      border-bottom: solid 1px #ccc;
+      padding-left: 8px;
+    }
+
+    .container {
+      margin: 8px;
+    }
+
+    .form-table {
+      border-collapse: collapse;
+      border-spacing: 0;
+    }
+
+    .form-table td {
+      padding: 0;
+    }
+
+    .form-table label {
+      display: block;
+      text-align: right;
+      font-weight: bold;
+      padding-right: 2px;
+    }
+
+    .form-table input[type="text"] {
+      width: 20em;
+    }
+
+    .form-table .explanation {
+      color: #999;
+      font-size: 90%;
+      padding-bottom: 5px;
+      max-width: 20em;
+    }
+
+    .form-table .buttons {
+      text-align: right;
+    }
+	</style>
+</head>
+<body>
+
+<h1>Web Hook Notifications Options</h1>
+
+<h2>Hooks</h2>
+
+<div class="container">
+</div>
+
+<h2>Preferences</h2>
+
+<div class="container">
+  <form onsubmit="savePrefs(); return false">
+    <table class="form-table">
+      <tr>
+        <td><label for="client-id">Client ID:</label></td>
+        <td><input type="text" id="client-id"></td>
+      </tr>
+
+      <tr>
+        <td></td>
+        <td><div class="explanation">Unique identifier, change to the same value if the extension is running on multiple computers.</div></td>
+      </tr>
+
+      <tr>
+        <td><label for="app-hostname">Server hostname:</label></td>
+        <td><input type="text" id="app-hostname"></td>
+      </tr>
+
+      <tr>
+        <td></td>
+        <td><div class="explanation">Host where hooks are registered, should only be changed for development purposes.</div></td>
+      </tr>
+
+      <tr>
+        <td colspan="2" class="buttons"><input type="submit" value="Save"></td>
+      </tr>
+    </table>
+  </form>
+</div>
+
+<script>
+  function savePrefs() {
+    prefs.setAppHostname(document.getElementById('app-hostname').value);
+    prefs.setClientId(document.getElementById('client-id').value);
+
+    // TODO(mihaip): validate client ID value
+
+    // TODO(mihaip): reload this page and the background page to pick up
+    // the new client ID
+  }
+
+  prefs.getClientId(function(clientId) {
+    document.getElementById('client-id').value = clientId;
+  });
+
+  document.getElementById('app-hostname').value = prefs.getAppHostname();
+</script>
+
+</body>
+</html>
