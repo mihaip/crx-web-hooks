@@ -14,6 +14,7 @@
 	    margin-top: 0;
 	    background: #eee;
 	    padding: .5em;
+	    border-bottom: solid 1px #ccc;
 	  }
 
     h2 {
@@ -23,6 +24,10 @@
 
     .container {
       margin: 8px;
+    }
+
+    #hooks-table {
+      margin-bottom: .5em;
     }
 
     .form-table {
@@ -64,6 +69,11 @@
 <h2>Hooks</h2>
 
 <div class="container">
+<table id="hooks-table">
+</table>
+
+<button onclick="createHook()">Create new hook</button>
+
 </div>
 
 <h2>Preferences</h2>
@@ -109,8 +119,40 @@
     // the new client ID
   }
 
+  function createHook() {
+    prefs.getClientId(function(clientId) {
+      data.createHook(clientId, function(hook) {
+        reloadHooks();
+      });
+    });
+  }
+
+  function reloadHooks() {
+    var hooksTable = document.getElementById('hooks-table');
+    hooksTable.innerHTML = '';
+
+    prefs.getClientId(function(clientId) {
+      data.getClientHooks(clientId, function(hooks) {
+        hooks.forEach(function(hook) {
+          var hookRow = document.createElement('tr');
+          hooksTable.appendChild(hookRow);
+
+          var hookIdCell = document.createElement('td');
+          hookRow.appendChild(hookIdCell);
+
+          var hookLink = document.createElement('a');
+          hookLink.href = 'http://' + prefs.getAppHostname() + '/hook/' + hook.id;
+          hookLink.textContent = hook.id;
+          hookIdCell.appendChild(hookLink);
+        });
+      });
+    });
+  }
+
   prefs.getClientId(function(clientId) {
     document.getElementById('client-id').value = clientId;
+
+    reloadHooks();
   });
 
   document.getElementById('app-hostname').value = prefs.getAppHostname();

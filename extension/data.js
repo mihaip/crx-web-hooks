@@ -12,7 +12,7 @@ prefs.getClientId = function(callback) {
     return;
   }
 
-  data.post('/client/create', function(client) {
+  data.post_('/client/create', function(client) {
     prefs.setPref_(prefs.PrefKey.CLIENT_ID, client.id);
     callback(client.id);
   });
@@ -42,11 +42,35 @@ prefs.setPref_ = function(key, value) {
 
 var data = {};
 
-data.post = function(path, callback) {
-  data.send_('POST', path, callback);
-}
+data.getClientHooks = function(clientId, callback) {
+  data.get_('/client/' + clientId + '/hooks', function(hooks) {
+    callback(hooks);
+  });
+};
 
-data.send_ = function(method, path, callback) {
+data.createHook = function(clientId, callback) {
+  data.post_('/hook/create', callback, {'client_id': clientId});
+};
+
+data.get_ = function(path, callback) {
+  data.send_('GET', path, callback);
+};
+
+data.post_ = function(path, callback, opt_params) {
+  var postData = '';
+  if (opt_params) {
+    for (var name in opt_params) {
+      var value = opt_params[name];
+      if (postData) {
+        postData += '&';
+      }
+      postData += encodeURIComponent(name) + '=' + encodeURIComponent(value);
+    }
+  }
+  data.send_('POST', path, callback, postData);
+};
+
+data.send_ = function(method, path, callback, opt_postData) {
   var xhr = new XMLHttpRequest();
   xhr.open(method, 'http://' + prefs.getAppHostname() + path, true);
   xhr.onreadystatechange = function() {
@@ -54,5 +78,6 @@ data.send_ = function(method, path, callback) {
       callback(JSON.parse(xhr.responseText));
     }
   };
-  xhr.send();
+  xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+  xhr.send(opt_postData);
 };

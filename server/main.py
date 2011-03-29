@@ -13,10 +13,13 @@ def main():
             ('/hook/(.+)', handlers.HookHandler),
 
             ('/client/create', handlers.ClientCreateHandler),
+
+            ('/client/(.+)/channel', handlers.ClientChannelHandler),
             ('/client/(.+)/channel/create', handlers.ClientChannelCreateHandler),
             ('/client/(.+)/channel/(.+)/ping', handlers.ClientChannelPingHandler),
             ('/client/(.+)/channel/(.+)/leave', handlers.ClientChannelLeaveHandler),
-            ('/client/(.+)/channel', handlers.ClientChannelHandler),
+
+            ('/client/(.+)/hooks', handlers.ClientHooksHandler),
             ('/client/(.+)', handlers.ClientHandler),
         ],
         debug=True)
