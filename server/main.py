@@ -10,6 +10,7 @@ def main():
             ('/', handlers.MainHandler),
 
             ('/hook/create', handlers.HookCreateHandler),
+            ('/hook/delete', handlers.HookDeleteHandler),
             ('/hook/(.+)', handlers.HookHandler),
 
             ('/client/create', handlers.ClientCreateHandler),

@@ -61,6 +61,29 @@ class HookCreateHandler(BaseHandler):
 
         self._write_json(hook.as_json())
 
+class HookDeleteHandler(BaseHandler):
+    def post(self):
+        hook_id = self.request.get('hook_id')
+        if not hook_id:
+            self._write_input_error('hook_id is required')
+            return
+        client_id = self.request.get('client_id')
+        if not client_id:
+            self._write_input_error('client_id is required')
+            return
+
+        hook = data.Hook.get_by_id(hook_id)
+        if not hook:
+            self._write_input_error('no hook found')
+            return
+        if hook.owner_client_id != client_id:
+            self._write_input_error('hook is not owned by the passed in user')
+            return
+
+        self._write_json(hook.as_json())
+
+        hook.delete()
+
 class HookHandler(BaseHandler):
     def get(self, hook_id):
         self.response.out.write('TODO(mihaip): explanatory page about POST '

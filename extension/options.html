@@ -30,6 +30,14 @@
       margin-bottom: .5em;
     }
 
+    #hooks-table button {
+      border: solid 1px #999;
+      color: #333;
+      background: #eee;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
     .form-table {
       border-collapse: collapse;
       border-spacing: 0;
@@ -129,10 +137,11 @@
 
   function reloadHooks() {
     var hooksTable = document.getElementById('hooks-table');
-    hooksTable.innerHTML = '';
 
     prefs.getClientId(function(clientId) {
       data.getClientHooks(clientId, function(hooks) {
+        hooksTable.innerHTML = '';
+
         hooks.forEach(function(hook) {
           var hookRow = document.createElement('tr');
           hooksTable.appendChild(hookRow);
@@ -144,6 +153,16 @@
           hookLink.href = 'http://' + prefs.getAppHostname() + '/hook/' + hook.id;
           hookLink.textContent = hook.id;
           hookIdCell.appendChild(hookLink);
+
+          var deleteCell = document.createElement('td');
+          hookRow.appendChild(deleteCell);
+
+          var deleteButton = document.createElement('button');
+          deleteButton.textContent = 'Delete';
+          deleteButton.onclick = function() {
+            data.deleteHook(clientId, hook.id, reloadHooks);
+          };
+          deleteCell.appendChild(deleteButton);
         });
       });
     });

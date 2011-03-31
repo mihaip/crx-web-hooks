@@ -52,6 +52,11 @@ data.createHook = function(clientId, callback) {
   data.post_('/hook/create', callback, {'client_id': clientId});
 };
 
+data.deleteHook = function(clientId, hookId, callback) {
+  data.post_(
+      '/hook/delete', callback, {'client_id': clientId, 'hook_id': hookId});
+};
+
 data.get_ = function(path, callback) {
   data.send_('GET', path, callback);
 };
