@@ -153,6 +153,7 @@ class ClientChannelCreateHandler(BaseHandler):
             return
 
         client.channels.add_channel()
+        client.channels.garbage_collect()
         client.put()
 
         self._write_json(client.as_json())
@@ -176,6 +177,7 @@ class ClientChannelPingHandler(BaseHandler):
             return
 
         client.channels.ping_channel(channel_id)
+        client.channels.garbage_collect()
         client.put()
 
         self._write_json(client.as_json())
@@ -189,6 +191,7 @@ class ClientChannelLeaveHandler(BaseHandler):
             return
 
         client.channels.remove_channel(channel_id)
+        client.channels.garbage_collect()
         client.put()
 
         self._write_json(client.as_json())
@@ -202,6 +205,7 @@ class ClientChannelHandler(BaseHandler):
             return
 
         channel_id = client.channels.add_channel()
+        client.channels.garbage_collect()
         client.put()
 
         channel_token = appengine_channel.create_channel(channel_id)

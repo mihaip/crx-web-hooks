@@ -69,6 +69,11 @@ class ClientChannelList(object):
         c = self.channel_ping_time_by_id
         return [k for k in c.keys() if c[k] > threshold_ping_time]
 
+    def garbage_collect(self):
+        threshold_ping_time = time.time() - 20 * 60
+        c = self.channel_ping_time_by_id
+        map(lambda k: c.pop(k), [k for k in c.keys() if c[k] < threshold_ping_time])
+
     def as_json(self):
         return {
             'channelPingTimeById': self.channel_ping_time_by_id
