@@ -57,11 +57,19 @@ data.deleteHook = function(clientId, hookId, callback) {
       '/hook/delete', callback, {'client_id': clientId, 'hook_id': hookId});
 };
 
-data.get_ = function(path, callback) {
+data.pingChannel = function(clientId, channelId) {
+  data.post_('/client/' + clientId + '/channel/' + channelId + '/ping');
+};
+
+data.leaveChannel = function(clientId, channelId) {
+  data.post_('/client/' + clientId + '/channel/' + channelId + '/leave');
+};
+
+data.get_ = function(path, opt_callback) {
   data.send_('GET', path, callback);
 };
 
-data.post_ = function(path, callback, opt_params) {
+data.post_ = function(path, opt_callback, opt_params) {
   var postData = '';
   if (opt_params) {
     for (var name in opt_params) {
@@ -72,15 +80,15 @@ data.post_ = function(path, callback, opt_params) {
       postData += encodeURIComponent(name) + '=' + encodeURIComponent(value);
     }
   }
-  data.send_('POST', path, callback, postData);
+  data.send_('POST', path, opt_callback, postData);
 };
 
-data.send_ = function(method, path, callback, opt_postData) {
+data.send_ = function(method, path, opt_callback, opt_postData) {
   var xhr = new XMLHttpRequest();
   xhr.open(method, 'http://' + prefs.getAppHostname() + path, true);
   xhr.onreadystatechange = function() {
-    if (xhr.readyState == 4 && xhr.status == 200) {
-      callback(JSON.parse(xhr.responseText));
+    if (xhr.readyState == 4 && xhr.status == 200 && opt_callback) {
+      opt_callback(JSON.parse(xhr.responseText));
     }
   };
   xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');

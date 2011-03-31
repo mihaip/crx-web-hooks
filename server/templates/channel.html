@@ -11,14 +11,14 @@
         type: messageType,
         data: opt_messageData || ''
       });
-      
+
       // TODO(mihaip): use a specific target origin if possible
       window.top.postMessage(messageString, '*');
     }
-    
+
     var channel = new goog.appengine.Channel('{{ channel_token }}');
     var socket = channel.open({
-      onopen: function() { relayChannelMessage('open'); },
+      onopen: function() { relayChannelMessage('open', {'channelId': '{{ channel_id }}'}); },
       onmessage: function(message) { relayChannelMessage('message', message); },
       onerror: function(error) { relayChannelMessage('error', error); },
       onclose: function() { relayChannelMessage('close'); }

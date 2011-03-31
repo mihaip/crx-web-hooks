@@ -6,19 +6,44 @@
 <body>
   <script src="data.js"></script>
   <script>
+  var clientId;
+  var channelId;
+
   window.addEventListener('message', handleChannelMessage, false);
+  window.addEventListener('unload', leaveChannel, false);
 
   function handleChannelMessage(event) {
     // TODO(mihaip): validate event origin and source
     var message = JSON.parse(event.data);
-    var notification = webkitNotifications.createNotification(
-        '',
-        message.type,
-        message.data ? JSON.stringify(message.data) : '<no data>');
-    notification.show();
+
+    switch (message.type) {
+      case 'open':
+        channelId = message.data.channelId;
+        setInterval(pingChannel, 5 * 60 * 1000);
+        break;
+      case 'close':
+        leaveChannel();
+        break;
+      default:
+        var notification = webkitNotifications.createNotification(
+            '',
+            message.type,
+            message.data ? JSON.stringify(message.data) : '<no data>');
+        notification.show();
+        break;
+    }
   }
 
-  prefs.getClientId(function(clientId) {
+  function pingChannel() {
+    data.pingChannel(clientId, channelId);
+  }
+
+  function leaveChannel() {
+    data.leaveChannel(clientId, channelId);
+  }
+
+  prefs.getClientId(function(value) {
+    clientId = value;
     var channelFrame = document.createElement('iframe');
     channelFrame.src = 'http://' + prefs.getAppHostname() + '/client/' + clientId + '/channel';
     document.body.appendChild(channelFrame);
