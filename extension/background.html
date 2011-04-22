@@ -53,6 +53,11 @@
     var channelFrame = document.createElement('iframe');
     channelFrame.src = 'http://' + prefs.getAppHostname() + '/client/' + clientId + '/channel';
     document.body.appendChild(channelFrame);
+
+    data.getClientHooks(clientId, function() {
+      // Dummy request to make sure that the client ID is still valid and that we can
+      // reach the server (the channel frame doesn't fire onerror callbacks).
+    });
   });
 
   if (prefs.isFirstLaunch()) {
