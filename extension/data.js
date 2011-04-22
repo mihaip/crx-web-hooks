@@ -3,7 +3,7 @@ var prefs = {};
 prefs.PrefKey = {
   CLIENT_ID: {id: 'client-id'},
   APP_HOSTNAME: {id: 'app-hostname', defaultValue: 'crx-web-hooks.appspot.com'},
-  IS_FIRST_LAUNCH: {id: 'is-first-launch', defaultValue: true}
+  IS_FIRST_LAUNCH: {id: 'is-first-launch', defaultValue: 'true'}
 };
 
 prefs.getClientId = function(callback) {
@@ -32,11 +32,11 @@ prefs.setAppHostname = function(appHostname) {
 };
 
 prefs.isFirstLaunch = function() {
-  return prefs.getPref_(prefs.PrefKey.IS_FIRST_LAUNCH);
+  return prefs.getPref_(prefs.PrefKey.IS_FIRST_LAUNCH) == 'true';
 };
 
 prefs.setIsFirstLaunch = function(value) {
-  return prefs.setPref_(prefs.PrefKey.IS_FIRST_LAUNCH, value);
+  return prefs.setPref_(prefs.PrefKey.IS_FIRST_LAUNCH, value.toString());
 };
 
 prefs.getPref_ = function(key) {
@@ -75,7 +75,7 @@ data.leaveChannel = function(clientId, channelId) {
 };
 
 data.get_ = function(path, opt_callback) {
-  data.send_('GET', path, callback);
+  data.send_('GET', path, opt_callback);
 };
 
 data.post_ = function(path, opt_callback, opt_params) {

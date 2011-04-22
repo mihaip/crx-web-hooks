@@ -118,13 +118,25 @@
 
 <script>
   function savePrefs() {
-    prefs.setAppHostname(document.getElementById('app-hostname').value);
-    prefs.setClientId(document.getElementById('client-id').value);
+    var shouldReload = false;
+    var newClientId = document.getElementById('client-id').value;
+    if (newClientId) {
+      shouldReload = true;
+      prefs.setClientId(newClientId);
+    }
+
+    var newHostname = document.getElementById('app-hostname').value;
+    if (newHostname && newHostname != prefs.getAppHostname()) {
+      shouldReload = true;
+      prefs.setAppHostname(newHostname);
+    }
+
+    if (shouldReload) {
+      chrome.extension.getBackgroundPage().location.reload();
+      window.location.reload();
+    }
 
     // TODO(mihaip): validate client ID value
-
-    // TODO(mihaip): reload this page and the background page to pick up
-    // the new client ID
   }
 
   function createHook() {

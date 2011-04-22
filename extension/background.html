@@ -18,6 +18,12 @@
 
     switch (message.type) {
       case 'open':
+        var notification = webkitNotifications.createNotification(
+            '', // no icon
+            'Channel opened.',
+            ''); // no body
+        notification.show();
+
         channelId = message.data.channelId;
         setInterval(pingChannel, 5 * 60 * 1000);
         break;
@@ -48,11 +54,11 @@
     channelFrame.src = 'http://' + prefs.getAppHostname() + '/client/' + clientId + '/channel';
     document.body.appendChild(channelFrame);
   });
-  
+
   if (prefs.isFirstLaunch()) {
     prefs.setIsFirstLaunch(false);
     chrome.tabs.create({'url': 'options.html'});
-  }  
+  }
   </script>
 </body>
 </html>
