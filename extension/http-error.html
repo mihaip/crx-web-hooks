@@ -34,6 +34,14 @@
 <div id="button"><button id="reload">Reload extension</button></div>
 
 <script>
+// Close other instances of this notification, no point in flooding the user.
+var notifications = chrome.extension.getViews({'type': 'notification'});
+notifications.forEach(function(notification) {
+  if (notification.location.pathname == location.pathname && notification != this) {
+    notification.close();
+  }
+});
+
 document.getElementById('url').textContent = localStorage.lastHttpErrorUrl;
 document.getElementById('status').textContent = localStorage.lastHttpErrorStatus;
 document.getElementById('reload').onclick = function() {

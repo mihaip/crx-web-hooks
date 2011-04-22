@@ -2,7 +2,8 @@ var prefs = {};
 
 prefs.PrefKey = {
   CLIENT_ID: {id: 'client-id'},
-  APP_HOSTNAME: {id: 'app-hostname', defaultValue: 'crx-web-hooks.appspot.com'}
+  APP_HOSTNAME: {id: 'app-hostname', defaultValue: 'crx-web-hooks.appspot.com'},
+  IS_FIRST_LAUNCH: {id: 'is-first-launch', defaultValue: true}
 };
 
 prefs.getClientId = function(callback) {
@@ -28,6 +29,14 @@ prefs.getAppHostname = function() {
 
 prefs.setAppHostname = function(appHostname) {
   prefs.setPref_(prefs.PrefKey.APP_HOSTNAME, appHostname);
+};
+
+prefs.isFirstLaunch = function() {
+  return prefs.getPref_(prefs.PrefKey.IS_FIRST_LAUNCH);
+};
+
+prefs.setIsFirstLaunch = function(value) {
+  return prefs.setPref_(prefs.PrefKey.IS_FIRST_LAUNCH, value);
 };
 
 prefs.getPref_ = function(key) {

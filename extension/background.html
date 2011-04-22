@@ -48,6 +48,11 @@
     channelFrame.src = 'http://' + prefs.getAppHostname() + '/client/' + clientId + '/channel';
     document.body.appendChild(channelFrame);
   });
+  
+  if (prefs.isFirstLaunch()) {
+    prefs.setIsFirstLaunch(false);
+    chrome.tabs.create({'url': 'options.html'});
+  }  
   </script>
 </body>
 </html>
