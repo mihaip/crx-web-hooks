@@ -126,6 +126,9 @@ class HookHandler(BaseHandler):
         # Echo what was sent to the channel for debugging
         self._write_json(request_as_json)
 
+        hook.update_last_event_time()
+        hook.put()
+
 class ClientHooksHandler(BaseHandler):
     def get(self, client_id):
         client = data.Client.get_by_id(client_id)

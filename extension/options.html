@@ -28,6 +28,18 @@
 
     #hooks-table {
       margin-bottom: .5em;
+      border-spacing: 0;
+    }
+
+    #hooks-table thead th {
+      font-weight: bold;
+      text-align: left;
+      border-bottom: solid 1px #eee;
+    }
+
+    #hooks-table td,
+    #hooks-table th {
+      padding: 2px 5px;
     }
 
     #hooks-table button {
@@ -78,6 +90,14 @@
 
 <div class="container">
 <table id="hooks-table">
+  <thead>
+    <tr>
+      <th>Hook</th>
+      <th>Last event time</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody></tbody>
 </table>
 
 <button onclick="createHook()">Create new hook</button>
@@ -161,11 +181,11 @@
 
     prefs.getClientId(function(clientId) {
       data.getClientHooks(clientId, function(hooks) {
-        hooksTable.innerHTML = '';
+        hooksTable.tBodies[0].innerHTML = '';
 
         hooks.forEach(function(hook) {
           var hookRow = document.createElement('tr');
-          hooksTable.appendChild(hookRow);
+          hooksTable.tBodies[0].appendChild(hookRow);
 
           var hookIdCell = document.createElement('td');
           hookRow.appendChild(hookIdCell);
@@ -174,6 +194,21 @@
           hookLink.href = 'http://' + prefs.getAppHostname() + '/hook/' + hook.id;
           hookLink.textContent = hook.id;
           hookIdCell.appendChild(hookLink);
+
+          var timestampCell = document.createElement('td');
+          hookRow.appendChild(timestampCell);
+          if (hook.lastEventTimeSec) {
+            var lastEventDate = new Date(hook.lastEventTimeSec * 1000);
+            if (new Date().toLocaleDateString() == lastEventDate.toLocaleDateString()) {
+              timestampCell.textContent = lastEventDate.toLocaleTimeString();
+            } else {
+              timestampCell.textContent =
+                  lastEventDate.toLocaleDateString() + ' ' + lastEventDate.toLocaleTimeString();
+            }
+            timestampCell.title = lastEventDate.toLocaleString();
+          } else {
+            timestampCell.textContent = 'None';
+          }
 
           var deleteCell = document.createElement('td');
           hookRow.appendChild(deleteCell);

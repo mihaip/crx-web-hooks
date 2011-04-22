@@ -1,4 +1,6 @@
 import base64
+import calendar
+import datetime
 import pickle
 import time
 import uuid
@@ -109,12 +111,17 @@ class Client(db.Model):
 class Hook(db.Model):
     id = db.StringProperty()
     owner_client_id = db.StringProperty()
+    last_event_time = db.DateTimeProperty()
 
     def as_json(self):
         return {
             'id': self.id,
             'ownerClientId': self.owner_client_id,
+            'lastEventTimeSec': calendar.timegm(self.last_event_time.utctimetuple())
         }
+
+    def update_last_event_time(self):
+        self.last_event_time = datetime.datetime.utcnow()
 
     @staticmethod
     def get_by_id(id):
@@ -131,6 +138,7 @@ class Hook(db.Model):
             key_name=id,
             id=id,
             owner_client_id=owner_client_id,
+            last_event_time=datetime.datetime.utcfromtimestamp(0)
         )
         return hook
 
