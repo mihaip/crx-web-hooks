@@ -51,6 +51,14 @@ prefs.setPref_ = function(key, value) {
 
 var data = {};
 
+data.clientExists = function(clientId, callback) {
+  data.get_(
+      '/client/' + clientId,
+      function(client) { callback(true); },
+      function() { callback(false); }
+  );
+};
+
 data.getClientHooks = function(clientId, callback) {
   data.get_('/client/' + clientId + '/hooks', function(hooks) {
     callback(hooks);
@@ -74,11 +82,11 @@ data.leaveChannel = function(clientId, channelId) {
   data.post_('/client/' + clientId + '/channel/' + channelId + '/leave');
 };
 
-data.get_ = function(path, opt_callback) {
-  data.send_('GET', path, opt_callback);
+data.get_ = function(path, opt_callback, opt_errorCallback) {
+  data.send_('GET', path, opt_callback, undefined, opt_errorCallback);
 };
 
-data.post_ = function(path, opt_callback, opt_params) {
+data.post_ = function(path, opt_callback, opt_params, opt_errorCallback) {
   var postData = '';
   if (opt_params) {
     for (var name in opt_params) {
@@ -89,10 +97,10 @@ data.post_ = function(path, opt_callback, opt_params) {
       postData += encodeURIComponent(name) + '=' + encodeURIComponent(value);
     }
   }
-  data.send_('POST', path, opt_callback, postData);
+  data.send_('POST', path, opt_callback, postData, opt_errorCallback);
 };
 
-data.send_ = function(method, path, opt_callback, opt_postData) {
+data.send_ = function(method, path, opt_callback, opt_postData, opt_errorCallback) {
   var xhr = new XMLHttpRequest();
   var url = 'http://' + prefs.getAppHostname() + path;
   xhr.open(method, url, true);
@@ -102,6 +110,8 @@ data.send_ = function(method, path, opt_callback, opt_postData) {
         if (opt_callback) {
           opt_callback(JSON.parse(xhr.responseText));
         }
+      } else if (opt_errorCallback) {
+        opt_errorCallback();
       } else {
         localStorage.lastHttpErrorUrl = url;
         localStorage.lastHttpErrorStatus = xhr.status;

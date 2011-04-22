@@ -121,22 +121,31 @@
     var shouldReload = false;
     var newClientId = document.getElementById('client-id').value;
     if (newClientId) {
-      shouldReload = true;
-      prefs.setClientId(newClientId);
+      data.clientExists(newClientId, function(clientExists) {
+        if (clientExists) {
+          shouldReload = true;
+          prefs.setClientId(newClientId);
+          continuation();
+        } else {
+          alert(newClientId + ' is not a known client ID');
+        }
+      });
+    } else {
+      contination();
     }
 
-    var newHostname = document.getElementById('app-hostname').value;
-    if (newHostname && newHostname != prefs.getAppHostname()) {
-      shouldReload = true;
-      prefs.setAppHostname(newHostname);
-    }
+    function continuation() {
+      var newHostname = document.getElementById('app-hostname').value;
+      if (newHostname && newHostname != prefs.getAppHostname()) {
+        shouldReload = true;
+        prefs.setAppHostname(newHostname);
+      }
 
-    if (shouldReload) {
-      chrome.extension.getBackgroundPage().location.reload();
-      window.location.reload();
+      if (shouldReload) {
+        chrome.extension.getBackgroundPage().location.reload();
+        window.location.reload();
+      }
     }
-
-    // TODO(mihaip): validate client ID value
   }
 
   function createHook() {
