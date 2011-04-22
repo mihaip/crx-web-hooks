@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>HTTP Error Notification</title>
+	<style>
+	  body {
+	    font-family: Helvetica, sans-serif;
+	    font-size: 13px;
+	    margin: .5em;
+	  }
+	  
+	  #text {
+	    margin-bottom: .5em;
+	  }
+	  
+	  #url,
+	  #status {
+	    font-family: monospace;
+	  }
+	  
+	  #button {
+	    text-align: right;
+	  }
+	  
+	</style>
+</head>
+<body>
+
+<div id="text">
+  Could not connect to <span id="url"></span>, received response code
+  <span id="status"></span>.
+</div>
+
+<div id="button"><button id="reload">Reload extension</button></div>
+
+<script>
+document.getElementById('url').textContent = localStorage.lastHttpErrorUrl;
+document.getElementById('status').textContent = localStorage.lastHttpErrorStatus;
+document.getElementById('reload').onclick = function() {
+  window.close();
+  chrome.extension.getBackgroundPage().location.reload();
+};
+</script>
+
+</body>
+</html>

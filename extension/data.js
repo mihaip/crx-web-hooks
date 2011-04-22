@@ -85,10 +85,20 @@ data.post_ = function(path, opt_callback, opt_params) {
 
 data.send_ = function(method, path, opt_callback, opt_postData) {
   var xhr = new XMLHttpRequest();
-  xhr.open(method, 'http://' + prefs.getAppHostname() + path, true);
+  var url = 'http://' + prefs.getAppHostname() + path;
+  xhr.open(method, url, true);
   xhr.onreadystatechange = function() {
-    if (xhr.readyState == 4 && xhr.status == 200 && opt_callback) {
-      opt_callback(JSON.parse(xhr.responseText));
+    if (xhr.readyState == 4) {
+      if (xhr.status == 200) {
+        if (opt_callback) {
+          opt_callback(JSON.parse(xhr.responseText));
+        }
+      } else {
+        localStorage.lastHttpErrorUrl = url;
+        localStorage.lastHttpErrorStatus = xhr.status;
+        var notification = webkitNotifications.createHTMLNotification('http-error.html');
+        notification.show();
+      }
     }
   };
   xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
