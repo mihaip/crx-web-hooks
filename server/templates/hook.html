@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Chrome Extension Web Hook</title>
+	<script src="/static/main.js"></script>
+	<link rel="stylesheet" type="text/css" href="/static/main.css">
+</head>
+<body>
+
+<h1>Chrome Extension Web Hook: {{ hook.id|escape }}</h1>
+
+<div class="container">
+  <p>This is an endpoint for a <a href="/">Chrome Extension Web Hook</a>.
+  <code>POST</code> requests sent to this URL will be delivered to any running
+  extension instances.</p>
+</div>
+
+<h2>Recent Events</h2>
+
+<div class="container">
+<table class="events-table">
+  <thead> 
+    <th>Time</th>
+    <th>Parameters</th>
+    <th>HTTP Headers</th>
+    <th>Cookies</th>
+    <th>Delivered</th>
+    <th>
+  </thead>
+{% for event in hook.events.events %}
+  <tr>
+    <td class="time"><script>writeEventTime({{ event.request_as_json.timeSec }})</script></td>
+    <td>
+      {% with event.request_as_json.arguments as dict %}
+        {% include "hook-event-dict.html" %}
+      {% endwith %}
+    </td>
+    <td>
+      {% with event.request_as_json.headers as dict %}
+        {% include "hook-event-dict.html" %}
+      {% endwith %}
+    </td>
+    <td>
+      {% with event.request_as_json.cookies as dict %}
+        {% include "hook-event-dict.html" %}
+      {% endwith %}
+    </td>
+    <td>{{ event.delivered }}</td>
+  </tr>
+{% endfor %}
+</table>
+
+</div>
+
+</body>
+</html>

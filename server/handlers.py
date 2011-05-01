@@ -1,4 +1,5 @@
 import os
+import time
 
 from django.utils import simplejson
 from google.appengine.api import channel as appengine_channel
@@ -86,8 +87,15 @@ class HookDeleteHandler(BaseHandler):
 
 class HookHandler(BaseHandler):
     def get(self, hook_id):
-        self.response.out.write('TODO(mihaip): explanatory page about POST '
-            'request goes here');
+        hook = data.Hook.get_by_id(hook_id)
+        if not hook:
+            self._write_not_found()
+            return
+
+        self._write_template(
+            'templates/hook.html', {
+                'hook': hook,
+            })
 
     def post(self, hook_id):
         request = self.request
@@ -99,13 +107,14 @@ class HookHandler(BaseHandler):
             cookies[cookie_name] = cookie_value
         headers = {}
         for header_name, header_value in request.headers.items():
-            cookies[header_name] = header_value
+            headers[header_name] = header_value
 
         request_as_json = {
           'remoteAddress': request.remote_addr,
           'arguments': arguments,
           'cookies': cookies,
           'headers': headers,
+          'timeSec': time.time(),
         }
 
         hook = data.Hook.get_by_id(hook_id)
@@ -119,14 +128,18 @@ class HookHandler(BaseHandler):
             return
 
         channel_ids = client.channels.get_active_channel_ids()
+        delivered = False
         for channel_id in channel_ids:
             appengine_channel.send_message(
                 channel_id, simplejson.dumps(request_as_json))
+            # We don't actually know if the message was delivered (the Channel
+            # API is asynchronous), but this is the best we can do
+            delivered = True
 
         # Echo what was sent to the channel for debugging
         self._write_json(request_as_json)
 
-        hook.update_last_event_time()
+        hook.add_event(request_as_json, delivered=delivered)
         hook.put()
 
 class ClientHooksHandler(BaseHandler):

@@ -108,10 +108,38 @@ class Client(db.Model):
         )
         return client
 
+class HookEvent(object):
+    def __init__(self, request_as_json, delivered):
+        self.request_as_json = request_as_json
+        self.delivered = delivered
+
+    def time_as_date(self):
+        return datetime.datetime.utcfromtimestamp(
+            self.request_as_json['timeSec'])
+
+class HookEventList(object):
+    def __init__(self):
+        self.events = []
+
+    def add_event(self, event):
+        self.events.append(event)
+        self.garbage_collect()
+
+    def garbage_collect(self):
+        delivered_events = [e for e in self.events if e.delivered]
+        if len(delivered_events) < 10:
+            old_events = delivered_events[:len(delivered_events) - 10]
+            for old_event in old_events:
+                self.events.remove(old_event)
+
+class HookEventListProperty(PickledProperty):
+    force_type = HookEventList
+
 class Hook(db.Model):
     id = db.StringProperty()
     owner_client_id = db.StringProperty()
     last_event_time = db.DateTimeProperty()
+    events = HookEventListProperty()
 
     def as_json(self):
         return {
@@ -120,7 +148,9 @@ class Hook(db.Model):
             'lastEventTimeSec': calendar.timegm(self.last_event_time.utctimetuple())
         }
 
-    def update_last_event_time(self):
+    def add_event(self, request_as_json, delivered):
+        event = HookEvent(request_as_json, delivered)
+        self.events.add_event(event)
         self.last_event_time = datetime.datetime.utcnow()
 
     @staticmethod
@@ -138,7 +168,8 @@ class Hook(db.Model):
             key_name=id,
             id=id,
             owner_client_id=owner_client_id,
-            last_event_time=datetime.datetime.utcfromtimestamp(0)
+            last_event_time=datetime.datetime.utcfromtimestamp(0),
+            events=HookEventList(),
         )
         return hook
 

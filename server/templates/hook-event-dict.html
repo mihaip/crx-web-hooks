@@ -1,0 +1,21 @@
+<ul class="hook-dict">
+{% for key, value in dict.items %}
+  <li>
+    <code>{{ key|escape }}</code>
+    =
+    <code>
+      <!-- Just a string -->
+      {% ifequal value.0|length 1 %}
+        {{ value|escape }}
+      {% endifequal %}
+      
+      <!-- List of strings -->
+      {% ifnotequal value.0|length 1 %}
+        {{ value|join:", "|escape }}
+      {% endifnotequal %}      
+    </code>
+  </li>
+{% empty %}
+  <li class="empty">None</li>
+{% endfor %}
+</ul>
