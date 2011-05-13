@@ -161,6 +161,10 @@
         prefs.setAppHostname(newHostname);
       }
 
+      if (!newClientId) {
+        prefs.setClientId(newClientId);
+      }
+
       if (shouldReload) {
         chrome.extension.getBackgroundPage().location.reload();
         window.location.reload();
