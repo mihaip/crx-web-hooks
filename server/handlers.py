@@ -110,6 +110,7 @@ class HookHandler(BaseHandler):
             headers[header_name] = header_value
 
         request_as_json = {
+          'hookId': hook_id,
           'remoteAddress': request.remote_addr,
           'arguments': arguments,
           'cookies': cookies,
@@ -152,6 +153,26 @@ class ClientHooksHandler(BaseHandler):
 
         hooks = data.Hook.get_hooks_for_client_id(client_id)
         self._write_json([h.as_json() for h in hooks])
+
+
+class ClientUndeliveredHandler(BaseHandler):
+    def get(self, client_id):
+        client = data.Client.get_by_id(client_id)
+
+        if not client:
+            self._write_not_found()
+            return
+
+        hooks = data.Hook.get_hooks_for_client_id(client_id)
+        undelivered_events = []
+        for hook in hooks:
+            hook_undelivered_events = hook.events.get_undelivered_events()
+            if hook_undelivered_events:
+                for event in hook_undelivered_events:
+                    event.delivered = True
+                undelivered_events.extend(hook_undelivered_events)
+                hook.put()
+        self._write_json([e.request_as_json for e in undelivered_events])
 
 class ClientCreateHandler(BaseHandler):
     def post(self):

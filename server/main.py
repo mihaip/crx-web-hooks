@@ -24,6 +24,7 @@ def main():
             ('/client/(.+)/channel/(.+)/leave', handlers.ClientChannelLeaveHandler),
 
             ('/client/(.+)/hooks', handlers.ClientHooksHandler),
+            ('/client/(.+)/undelivered', handlers.ClientUndeliveredHandler),
             ('/client/(.+)', handlers.ClientHandler),
         ],
         debug=True)

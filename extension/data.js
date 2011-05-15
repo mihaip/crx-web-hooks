@@ -60,9 +60,7 @@ data.clientExists = function(clientId, callback) {
 };
 
 data.getClientHooks = function(clientId, callback) {
-  data.get_('/client/' + clientId + '/hooks', function(hooks) {
-    callback(hooks);
-  });
+  data.get_('/client/' + clientId + '/hooks', callback);
 };
 
 data.createHook = function(clientId, callback) {
@@ -80,6 +78,10 @@ data.pingChannel = function(clientId, channelId) {
 
 data.leaveChannel = function(clientId, channelId) {
   data.post_('/client/' + clientId + '/channel/' + channelId + '/leave');
+};
+
+data.getUndeliveredEvents = function(clientId, callback) {
+  data.get_('/client/' + clientId + '/undelivered', callback);
 };
 
 data.get_ = function(path, opt_callback, opt_errorCallback) {

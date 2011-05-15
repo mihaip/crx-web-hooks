@@ -125,6 +125,10 @@ class HookEventList(object):
         self.events.append(event)
         self.garbage_collect()
 
+    def get_undelivered_events(self):
+        events = [e for e in self.events if not e.delivered]
+        return events
+
     def garbage_collect(self):
         delivered_events = [e for e in self.events if e.delivered]
         if len(delivered_events) < 10:

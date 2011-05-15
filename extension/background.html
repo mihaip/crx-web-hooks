@@ -12,6 +12,12 @@
   window.addEventListener('message', handleChannelMessage, false);
   window.addEventListener('unload', leaveChannel, false);
 
+  function handleEvent(event) {
+    var notification = webkitNotifications.createNotification(
+        '', 'event received for hook ' + event.hookId, JSON.stringify(event));
+    notification.show();
+  }
+
   function handleChannelMessage(event) {
     // TODO(mihaip): validate event origin and source
     var message = JSON.parse(event.data);
@@ -26,14 +32,22 @@
 
         channelId = message.data.channelId;
         setInterval(pingChannel, 5 * 60 * 1000);
+
+        data.getUndeliveredEvents(clientId, function(events) {
+          events.forEach(handleEvent);
+        });
         break;
       case 'close':
         leaveChannel();
         break;
+      case 'message':
+        handleEvent(message.data);
+        break;
+        break;
       default:
         var notification = webkitNotifications.createNotification(
             '',
-            message.type,
+            'Unknown message type: '  + message.type,
             message.data ? JSON.stringify(message.data) : '<no data>');
         notification.show();
         break;
